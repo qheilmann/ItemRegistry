@@ -1,0 +1,75 @@
+{
+    // On Windows you need to set the default terminal profile to something like "Git Bash" (ctrl+shift+p > workbench.action.terminal.selectDefaultShell > "Git Bash") 
+    "version": "2.0.0",
+    "options": {
+        "env": {
+            "ENV_FILE": "${workspaceFolder}/.env",
+        }
+    },
+    "presentation": {
+        "clear": true
+    },
+    "problemMatcher": [],
+    "runOptions": {
+        "instancePolicy": "terminateOldest",
+    },
+    "tasks": [
+        {
+            "label": "ShadowJar & Deploy",
+            "type": "shell",
+            "command": "./gradlew shadowJarAndDeploy"
+        },
+        {
+            "label": "Paper Server run (HotSwap)",
+            "type": "shell",
+            "command": [
+                "set a- && . \"${ENV_FILE}\"",
+                "&& cd \"${SERVER_PATH}\"",
+                "&& ./start --java   \"${JBR21_HOME}\\bin\\java\"",
+                "           --args   \"-XX:+AllowEnhancedClassRedefinition -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=localhost:1000 -Ddisable.watchdog=true\"",
+                "           --jar    \"${SERVER_JAR}\"",
+                "           --memory \"${SERVER_ALLOCATED_MEMORY}\"",
+            ]
+        },
+        {
+            "label": "Stop Paper Server",
+            "type": "shell",
+            "command": [
+                "set a- && . \"${ENV_FILE}\"",
+                "&& if mcrcon.exe -H \"${MCRCON_HOST}\" -P \"${MCRCON_PORT}\" -p \"${MCRCON_PASS}\" stop; then",
+                "     echo 'Stop command sent, waiting for server...';",
+                "     for i in {1..60}; do",
+                "       ps -f | grep -v grep | grep -q \"${SERVER_JAR}\" || break;",
+                "       sleep 0.25;",
+                "     done;",
+                "     echo 'Server fully stopped';",
+                "   else",
+                "     echo 'Server was not running';",
+                "   fi"
+            ],
+            "hide": true,
+            "presentation": {
+                "reveal": "silent",
+                "close": true
+            }
+        },
+        {
+            // Intermediate task to stop the server and build in parallel
+            "label": "Stop & Build (parallel)",
+            "dependsOrder": "parallel",
+            "dependsOn": [
+                "Stop Paper Server",
+                "ShadowJar & Deploy"
+            ],
+            "hide": true,
+        },
+        {
+            "label": "Build & Restart Server",
+            "dependsOrder": "sequence",
+            "dependsOn": [
+                "Stop & Build (parallel)",
+                "Paper Server run (HotSwap)"
+            ]
+        }
+    ]
+}
