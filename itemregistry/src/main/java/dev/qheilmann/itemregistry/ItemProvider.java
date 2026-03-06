@@ -1,19 +1,22 @@
 package dev.qheilmann.itemregistry;
 
 import org.bukkit.inventory.ItemStack;
+import org.jspecify.annotations.NullMarked;
 
 /**
- * Factory for producing {@link ItemStack} instances.
+ * Functional interface for providing {@link ItemStack} instances.
  * <p>
- * Implementations should return a fresh or cloned stack on every call.
+ * Implementations should return a fresh itemstack instance on every call.
+ * <p>
  * Examples:
  * <pre>{@code
  * () -> new ItemStack(Material.STONE)
  * templateItem::clone
  * }</pre>
  */
+@NullMarked
 @FunctionalInterface
-public interface ItemStackCreator {
+public interface ItemProvider {
 
     /**
      * Creates and returns a new {@link ItemStack} instance.
