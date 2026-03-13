@@ -1,0 +1,13 @@
+name: ProducerPluginExample
+description: Example producer plugin that hooks into consumer registries
+author: qheilmann
+website: https://github.com/qheilmann/ItemRegistry
+main: dev.qheilmann.itemregistry.examples.producer.ProducerPluginExample
+api-version: ${apiVersion}
+version: ${version}
+
+dependencies:
+  server:
+    ConsumerPluginExample:
+      load: AFTER
+      required: false

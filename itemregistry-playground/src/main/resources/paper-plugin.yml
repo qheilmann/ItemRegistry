@@ -1,7 +1,0 @@
-name: ItemRegistryPlayground
-description: Playground plugin for testing the ItemRegistry library
-author: qheilmann
-website: https://github.com/qheilmann/ItemRegistry
-main: dev.qheilmann.itemregistry.playground.ItemRegistryPlayground
-api-version: ${apiVersion}
-version: ${version}

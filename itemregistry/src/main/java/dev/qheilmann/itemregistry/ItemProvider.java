@@ -10,7 +10,7 @@ import org.jspecify.annotations.NullMarked;
  * <p>
  * Examples:
  * <pre>{@code
- * () -> new ItemStack(Material.STONE)
+ * () -> ItemStack.of(Material.STONE)
  * templateItem::clone
  * }</pre>
  */
@@ -20,7 +20,7 @@ public interface ItemProvider {
 
     /**
      * Creates and returns a new {@link ItemStack} instance.
-     * @return a new ItemStack instance
+     * @return a ItemStack.of instance
      */
     ItemStack create();
 }

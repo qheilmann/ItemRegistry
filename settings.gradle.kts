@@ -6,4 +6,7 @@ plugins {
 rootProject.name = "ItemRegistry"
 
 include("itemregistry")
-include("itemregistry-playground")
+
+include(":examples:api-only-example")
+include(":examples:consumer-plugin-example")
+include(":examples:producer-plugin-example")

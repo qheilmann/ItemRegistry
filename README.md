@@ -5,17 +5,17 @@ A small Paper library that unifies multiple item sources into a single registry 
 ## Usage
 
 ```java
-ItemRegistry registry = new ItemRegistry();
+ItemRegistry registry = new ItemRegistry(Key.key("myplugin", "myregistry"));
 
 // Register vanilla Minecraft items
-registry.registerSource(new VanillaItemSource());
+registry.registerSource(ItemSource.VANILLA_SOURCE);
 
 // Create vanilla items
 ItemStack diamond = registry.create(Key.key("minecraft", "diamond"));
 
 // Register custom items
 SimpleItemSource custom = new SimpleItemSource(Key.key("myplugin", "custom"));
-ItemStack wand = new ItemStack(Material.STICK);
+ItemStack wand = ItemStack.of(Material.STICK);
 wand.editMeta(meta -> meta.displayName(Component.text("Magic Wand")));
 custom.register(Key.key("myplugin", "magic_wand"), wand);
 registry.registerSource(custom);
@@ -27,7 +27,23 @@ ItemStack myWand = registry.create(Key.key("myplugin", "magic_wand"));
 ## Modules
 
 - **`itemregistry`** — the library itself
-- **`itemregistry-playground`** — a Paper plugin for demonstration and testing purposes
+- **`examples:api-only-example`** — single plugin using the API only (local registry)
+- **`examples:consumer-plugin-example`** — consumer plugin exposing a registry to others
+- **`examples:producer-plugin-example`** — producer plugin listening for ready registries and registering its source
+
+## Example Builds
+
+Build one example:
+
+```bash
+./gradlew :examples:api-only-example:build
+```
+
+Build and deploy one example to your server plugin folder (uses `SERVER_PATH` from your `.env`):
+
+```bash
+./gradlew :examples:api-only-example:shadowJarAndDeploy
+```
 
 ## Notes
 

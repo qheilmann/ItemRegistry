@@ -10,14 +10,14 @@ repositories {
 }
 
 dependencies {
-    implementation(project(":itemregistry"))
+    compileOnly(project(":itemregistry"))
     compileOnly(libs.paper.api)
     compileOnly(libs.jspecify)
 }
 
 tasks {
     shadowJar {
-        archiveBaseName.set("itemregistry-playground")
+        archiveBaseName.set("itemregistry-producer-example")
         archiveVersion.set(pluginVersion)
         archiveClassifier.set("")
         dependsOn(processResources)
@@ -25,7 +25,7 @@ tasks {
 
     processResources {
         val props = mapOf(
-            "version"    to pluginVersion,
+            "version" to pluginVersion,
             "apiVersion" to libs.versions.paper.api.get().substringBefore("-R"),
         )
         inputs.properties(props)
@@ -51,7 +51,7 @@ tasks {
                 ?.forEach { file ->
                     logger.lifecycle("Cleaning old ${baseName} plugin files: ${file.name}")
                     file.delete()
-            }
+                }
             logger.lifecycle("Deploy ${baseName} to ${destinationDir.absolutePath} ...")
         }
     }

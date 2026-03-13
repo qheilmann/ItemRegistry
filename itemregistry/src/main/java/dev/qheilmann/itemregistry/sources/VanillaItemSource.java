@@ -1,6 +1,7 @@
 package dev.qheilmann.itemregistry.sources;
 
 import dev.qheilmann.itemregistry.ItemProvider;
+import dev.qheilmann.itemregistry.ItemRegistry;
 import dev.qheilmann.itemregistry.ItemSource;
 import net.kyori.adventure.key.Key;
 import org.bukkit.Registry;
@@ -37,7 +38,7 @@ import java.util.Set;
 @SuppressWarnings("java:S6548") // Singleton pattern is appropriate here
 public class VanillaItemSource implements ItemSource {
 
-    private static final Key SOURCE_KEY = Key.key("itemregistry", "vanilla");
+    public static final Key SOURCE_KEY = Key.key(ItemRegistry.NAMESPACE, "vanilla");
     
     /**
      * The singleton instance of VanillaItemSource.

@@ -8,6 +8,7 @@ import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -17,9 +18,6 @@ import java.util.concurrent.ConcurrentHashMap;
  * This implementation provides a straightforward API for plugins that want to
  * register custom items without implementing their own ItemSource. Items are
  * stored as templates and cloned on each creation.
- * <p>
- * <strong>Thread Safety:</strong><br>
- * All operations are thread-safe and can be called from any thread.
  */
 @NullMarked
 public class SimpleItemSource implements ItemSource {
@@ -55,8 +53,10 @@ public class SimpleItemSource implements ItemSource {
      * @throws IllegalArgumentException if template is null or air
      */
     @SuppressWarnings("java:S2589") // Enforce non-null explicitly
-    public @Nullable ItemProvider register(Key key, ItemStack template) {
-        if (template == null || template.getType().isAir()) {
+    @Nullable
+    public ItemProvider register(Key key, ItemStack template) {
+        Objects.requireNonNull(key, "Key cannot be null");
+        if (template.getType().isAir()) {
             throw new IllegalArgumentException("Item template cannot be null or air");
         }
         

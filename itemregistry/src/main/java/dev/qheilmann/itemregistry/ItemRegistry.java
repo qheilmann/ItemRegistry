@@ -1,6 +1,7 @@
 package dev.qheilmann.itemregistry;
 
 import net.kyori.adventure.key.Key;
+import net.kyori.adventure.key.Keyed;
 import org.bukkit.inventory.ItemStack;
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
@@ -8,6 +9,7 @@ import org.jspecify.annotations.Nullable;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 /**
@@ -19,7 +21,14 @@ import java.util.Set;
  * multiple threads (e.g., async tasks, event handlers).
  */
 @NullMarked
-public class ItemRegistry {
+public class ItemRegistry implements Keyed {
+
+    public static final String NAMESPACE = "itemregistry";
+
+    /**
+     * Logical identifier for this registry instance.
+     */
+    private final Key key;
 
     /**
      * Map of source keys to ItemSource instances.
@@ -29,9 +38,22 @@ public class ItemRegistry {
 
     /**
      * Creates a new, empty ItemRegistry with no sources.
+     *
+     * @param key the logical key that identifies this registry instance
      */
-    public ItemRegistry() {
-        // No initialization needed
+    public ItemRegistry(Key key) {
+        Objects.requireNonNull(key, "key");
+        this.key = key;
+    }
+
+    /**
+     * Returns the logical key that identifies this registry instance.
+     *
+     * @return the registry key
+     */
+    @Override
+    public Key key() {
+        return key;
     }
 
     /**
@@ -78,6 +100,17 @@ public class ItemRegistry {
     }
 
     /**
+     * Returns an unmodifiable set of all currently registered sources.
+     * <p>
+     * The returned set is a snapshot and will not reflect future changes.
+     *
+     * @return a set of ItemSources currently registered
+     */
+    public synchronized Set<ItemSource> getSources() {
+        return Set.copyOf(sources.values());
+    }
+
+    /**
      * Returns an unmodifiable set of all registered source keys.
      * <p>
      * The returned set is a snapshot and will not reflect future changes.
@@ -97,7 +130,7 @@ public class ItemRegistry {
      * Returns null if no registered source can resolve the key.
      *
      * @param itemKey the key of the item to create (e.g., "minecraft:diamond")
-     * @return a new ItemStack instance, or null if the key cannot be resolved
+     * @return a ItemStack.of instance, or null if the key cannot be resolved
      */
     public synchronized @Nullable ItemStack create(Key itemKey) {
         for (ItemSource source : sources.values()) {
