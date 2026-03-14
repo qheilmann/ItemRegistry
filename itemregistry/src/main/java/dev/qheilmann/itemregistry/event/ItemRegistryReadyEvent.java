@@ -41,11 +41,21 @@ public final class ItemRegistryReadyEvent extends Event {
         return registry;
     }
 
+    /**
+     * Returns the handler list for this event.
+     *
+     * @return the handler list
+     */
     @Override
     public HandlerList getHandlers() {
         return getHandlerList();
     }
 
+    /**
+     * Returns the handler list for this event.
+     *
+     * @return the handler list
+     */
     public static HandlerList getHandlerList() {
         return HANDLERS;
     }

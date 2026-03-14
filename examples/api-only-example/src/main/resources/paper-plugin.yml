@@ -1,7 +1,0 @@
-name: ApiOnlyExample
-description: API-only demo plugin with local custom items and join listener behavior
-author: qheilmann
-website: https://github.com/qheilmann/ItemRegistry
-main: dev.qheilmann.itemregistry.examples.apionly.ApiOnlyExamplePlugin
-api-version: ${apiVersion}
-version: ${version}

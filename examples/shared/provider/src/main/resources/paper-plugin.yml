@@ -1,0 +1,13 @@
+name: ItemRegistry-SharedProviderExample
+description: Provider plugin that registers custom items into the shared ItemRegistry plugin
+author: qheilmann
+website: https://github.com/qheilmann/ItemRegistry
+main: dev.qheilmann.itemregistry.examples.shared.provider.SharedProviderExample
+api-version: ${apiVersion}
+version: ${version}
+
+dependencies:
+  server:
+    ItemRegistry:
+      load: BEFORE
+      required: true

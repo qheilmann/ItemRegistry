@@ -1,7 +1,0 @@
-name: ConsumerPluginExample
-description: Example consumer plugin that exposes an ItemRegistry via event
-author: qheilmann
-website: https://github.com/qheilmann/ItemRegistry
-main: dev.qheilmann.itemregistry.examples.consumer.ConsumerPluginExample
-api-version: ${apiVersion}
-version: ${version}

@@ -1,0 +1,7 @@
+name: ItemRegistry
+description: Shared ItemRegistry plugin exposing one global registry for cross-plugin interoperability
+author: qheilmann
+website: https://github.com/qheilmann/ItemRegistry
+main: dev.qheilmann.itemregistry.plugin.ItemRegistryPlugin
+api-version: ${apiVersion}
+version: ${version}

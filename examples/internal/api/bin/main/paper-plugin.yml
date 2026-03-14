@@ -1,0 +1,7 @@
+name: ItemRegistry-InternalOnlyExample
+description: Example plugin that manages its own ItemRegistry internally
+author: qheilmann
+website: https://github.com/qheilmann/ItemRegistry
+main: dev.qheilmann.itemregistry.examples.internalonly.InternalOnlyExample
+api-version: ${apiVersion}
+version: ${version}

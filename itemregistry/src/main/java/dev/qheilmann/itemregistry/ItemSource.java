@@ -6,6 +6,7 @@ import net.kyori.adventure.key.Keyed;
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 
+import dev.qheilmann.itemregistry.sources.SimpleItemSource;
 import dev.qheilmann.itemregistry.sources.VanillaItemSource;
 
 import java.util.Set;

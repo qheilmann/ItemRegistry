@@ -23,6 +23,7 @@ import java.util.Set;
 @NullMarked
 public class ItemRegistry implements Keyed {
 
+    /** Namespace of the item registries api" */
     public static final String NAMESPACE = "itemregistry";
 
     /**
@@ -159,5 +160,6 @@ public class ItemRegistry implements Keyed {
         }
         return false;
     }
+
 }
 

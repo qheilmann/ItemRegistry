@@ -1,0 +1,13 @@
+name: ItemRegistry-SharedConsumerExample
+description: Consumer plugin that reads items from the shared ItemRegistry plugin
+author: qheilmann
+website: https://github.com/qheilmann/ItemRegistry
+main: dev.qheilmann.itemregistry.examples.shared.consumer.SharedConsumerExample
+api-version: ${apiVersion}
+version: ${version}
+
+dependencies:
+  server:
+    ItemRegistry:
+      load: BEFORE
+      required: true

@@ -1,0 +1,8 @@
+name: ItemRegistry-InternalExtendableConsumerExample
+description: Example consumer plugin that exposes an ItemRegistry via event
+author: qheilmann
+website: https://github.com/qheilmann/ItemRegistry
+main: dev.qheilmann.itemregistry.examples.internalextendable.consumer.InternalExtendableConsumerExample
+has-open-classloader: true
+api-version: ${apiVersion}
+version: ${version}

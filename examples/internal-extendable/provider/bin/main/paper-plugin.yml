@@ -1,0 +1,13 @@
+name: ItemRegistry-InternalExtendableProviderExample
+description: Example provider plugin that contributes items to consumer registries
+author: qheilmann
+website: https://github.com/qheilmann/ItemRegistry
+main: dev.qheilmann.itemregistry.examples.internalextendable.provider.InternalExtendableProviderExample
+api-version: ${apiVersion}
+version: ${version}
+
+dependencies:
+  server:
+    ItemRegistry-InternalExtendableConsumerExample:
+      load: AFTER
+      required: true
