@@ -1,99 +1,154 @@
 # ItemRegistry
 
-ItemRegistry is a small Paper API that maps Adventure [`Key`](https://jd.advntr.dev/key/latest/)s to [`ItemStack`](https://hub.spigotmc.org/javadocs/spigot/org/bukkit/inventory/ItemStack.html) instances through pluggable sources.
+ItemRegistry is a small Paper API that resolves Adventure [Key](https://jd.advntr.dev/key/latest/net/kyori/adventure/key/Key.html) values to Bukkit [ItemStack](https://hub.spigotmc.org/javadocs/spigot/org/bukkit/inventory/ItemStack.html) using pluggable item sources.
 
-## Basics
+## Goal
 
-Use this API the same way in both modes: register sources, then resolve keys.
+Make item lookup easier and easy to share across plugins, without hard dependencies or custom data formats.
+
+- Providers register items by key with pluggable item sources.
+- Consumers request items by the same key.
+
+Multiple registries can exist at the same time. A registry can be private to one plugin or shared across plugins.
+
+## Core API (same in all modes)
 
 ```java
-// Assume you already have a registry instance:
-// - Internal mode: your plugin owns it
-// - Shared mode: fetched from GlobalItemRegistry.registry()
+// Suppose you already have a registry instance.
 ItemRegistry registry = ...;
 
-// Register your own custom items.
+// Register your own simple item source.
 SimpleItemSource custom = new SimpleItemSource(Key.key("myplugin", "custom_source"));
 custom.register(Key.key("myplugin", "magic_wand"), ItemStack.of(Material.STICK));
 custom.register(Key.key("myplugin", "power_gem"), ItemStack.of(Material.AMETHYST_SHARD));
 registry.registerSource(custom);
 
-// Register a more complex source
-registry.registerSource(new mySpecialSource());
+// Register a more complex source.
+registry.registerSource(new MySpecialSource());
 
-// Retrieve items.
+// Resolve.
 ItemStack wand = registry.create(Key.key("myplugin", "magic_wand"));
-ItemStack diamond = registry.create(Key.key("minecraft", "diamond"));
-
-// Check without creating.
-boolean exists = registry.canResolve(Key.key("myplugin", "magic_wand"));
+boolean exists = registry.canResolve(Key.key("myplugin", "power_gem"));
 ```
 
----
+## Two Main Usage Patterns
 
-## Two Ways To Use This Library
+- Shared: A standalone ItemRegistry plugin provides one global shared registry for all plugins.
+- Internal: A plugin embeds and owns its own registry instance, which can stay private or be intentionally exposed.
 
-### Internal (embedded, shaded)
+### Shared (standalone ItemRegistry plugin)
 
-Local and isolated mode: your plugin embeds the registry, users install only your plugin, and interoperability is explicit.
+In shared mode, the ItemRegistry plugin jar provides the runtime implementation and creates the global shared registry.
+Provider and consumer plugins only compile against the API.
 
-You shade `itemregistry` directly into your plugin jar. Your plugin owns the registry completely. No extra jar is required for your users.
 
-**Use when:**
-- Your registry is private to your plugin.
-- You want zero external dependencies for users.
-- You optionally want selected third-party providers to add items (`Internal Extendable` below).
+Use this when:
+- You want broad interoperability between unrelated plugins.
+- Providers and consumers should not need direct awareness of each other.
 
-**Drawback:** Third-party plugins that do not explicitly target your plugin cannot integrate. Different plugins that each shade their own copy cannot share registry instances.
+Tradeoff:
+- Server owners must install the ItemRegistry plugin jar.
 
-**Gradle dependency:**
+Gradle dependency for providers/consumers:
 ```kotlin
-// In your plugin's build.gradle.kts:
-implementation("dev.qheilmann:itemregistry:VERSION") // shaded via Shadow
+compileOnly("dev.qheilmann:itemregistry:VERSION")
 ```
 
-### Internal Extendable (Optional)
-
-Provider plugin can access your internal registry. Two patterns, each with a different load order:
-
-#### Option A — Event-based (provider enables first, listens for `ItemRegistryReadyEvent`)
-
-Provider registers its listener before consumer fires the event, so provider must enable **before** consumer.
-Because consumer loads after provider, Paper does not auto-share the consumer's classloader; you must opt in.
-
+`paper-plugin.yml` dependency (matches examples):
 ```yaml
-# consumer paper-plugin.yml — required so classes shaded inside consumer are visible to provider
-has-open-classloader: true
-```
-
-```yaml
-# provider paper-plugin.yml — AFTER means consumer loads/enables after provider
 dependencies:
   server:
-    YourConsumerPlugin:
-      load: AFTER
+    ItemRegistry:
+      load: BEFORE
       required: true
 ```
 
-Consumer fires the event during `onEnable`:
+Provider example:
 ```java
-Bukkit.getPluginManager().callEvent(new ItemRegistryReadyEvent(registry));
-```
+@Override
+public void onEnable() {
+    if (!GlobalItemRegistry.isAvaible()) {
+        getSLF4JLogger().error("Global item registry is unavailable. Ensure the ItemRegistry plugin is enabled. Disabling plugin.");
+        getServer().getPluginManager().disablePlugin(this);
+        return;
+    }
 
-Provider registers a listener and filters by registry key:
-```java
-@EventHandler
-public void onRegistryReady(ItemRegistryReadyEvent event) {
-    if (!MY_REGISTRY_KEY.equals(event.getRegistry().key())) return;
-    event.getRegistry().registerSource(mySource);
+    ItemRegistry global = GlobalItemRegistry.registry();
+    
+    SimpleItemSource source = new SimpleItemSource(Key.key("myplugin", "source"));
+    source.register(Key.key("myplugin", "shared_item"), ItemStack.of(Material.EMERALD));
+    global.registerSource(source);
 }
 ```
 
-#### Option B — Static API (consumer exposes a getter, provider calls it after consumer enables)
+Consumer example:
+```java
+@Override
+public void onEnable() {
+    if (!GlobalItemRegistry.isAvaible()) {
+        getSLF4JLogger().error("Global item registry is unavailable. Ensure the ItemRegistry plugin is enabled. Disabling plugin.");
+        getServer().getPluginManager().disablePlugin(this);
+        return;
+    }
 
-Consumer loads and enables first, exposing the registry through a static method.
-Provider declares it as a `load: BEFORE` dependency — Paper then auto-shares the consumer's classloader, so **no `has-open-classloader` flag is needed**.
+    ItemRegistry global = GlobalItemRegistry.registry();
+    
+    ItemStack item = global.create(Key.key("myplugin", "shared_item"));
+}
+```
 
+See examples:
+- [examples/shared/provider](examples/shared/provider)
+- [examples/shared/consumer](examples/shared/consumer)
+
+### Internal (embedded / shaded)
+
+In internal mode, your plugin owns its own registry instance and provides the runtime implementation by shading ItemRegistry into its own jar.
+
+
+
+Use this when:
+- You want no extra plugin jar for server owners.
+- The registry is private to your plugin.
+
+Tradeoff:
+- Other plugins cannot integrate unless you intentionally expose your registry. (see [Internal Extended](#3-internal-extended-consumer-exposes-its-internal-registry) below)
+
+Gradle dependency:
+```kotlin
+implementation("dev.qheilmann:itemregistry:VERSION")
+```
+
+See example: [examples/internal/api](examples/internal/api)
+
+### Internal Extended (consumer exposes its internal registry)
+
+This is still internal ownership, but third-party provider plugins can explicitly register into an internal-owned registry.
+
+There is many ways to implement this pattern, but here are two possible approaches.
+
+#### Internal Extended With Static Getter
+
+Consumer loads first and exposes a static getter. Provider depends on consumer with `load: BEFORE`, then reads the registry in `onEnable()`.
+
+Consumer example:
+```java
+public final class YourConsumerPlugin extends JavaPlugin {
+    private static ItemRegistry registry;
+
+    public static ItemRegistry getRegistry() {
+        return registry;
+    }
+
+    @Override
+    public void onEnable() {
+        registry = new ItemRegistry(Key.key("consumer_example", "main"));
+        registry.registerSource(ItemSource.VANILLA_SOURCE);
+    }
+}
+```
+
+Provider dependency and usage:
 ```kotlin
 // provider build.gradle.kts
 compileOnly(project(":your-consumer-plugin"))
@@ -108,105 +163,69 @@ dependencies:
       required: true
 ```
 
-Provider calls the consumer API directly in `onEnable`:
 ```java
-ItemRegistry registry = YourConsumerPlugin.getRegistry();
-registry.registerSource(mySource);
+@Override
+public void onEnable() {
+    ItemRegistry registry = YourConsumerPlugin.getRegistry();
+    registry.registerSource(mySource);
+}
 ```
 
-See [`examples/internal-extendable`](examples/internal-extendable) for a full consumer + provider pair.
+#### Internal Extended With Event Based
 
----
+Provider loads first and listens for a ready event. Consumer fires `ItemRegistryReadyEvent` when its registry is ready.
 
-### Shared (external plugin)
+Consumer example:
+```java
+public final class YourConsumerPlugin extends JavaPlugin {
+    private final ItemRegistry registry = new ItemRegistry(Key.key("consumer_example", "main"));
 
-Global/common mode: one shared registry in one plugin jar, so unrelated providers and consumers can interoperate.
-
-Install the `ItemRegistry` plugin jar on your server. All plugins that depend on it share a single global registry instance.
-
-**Use when:**
-- You want any third-party plugin to be able to add or read items without knowing about each other.
-- Broad interoperability across an unknown set of plugins is required.
-
-**Drawback:** Users must install `ItemRegistry` as a separate plugin jar.
-
-**Gradle dependency:**
-```kotlin
-// In your plugin's build.gradle.kts — no shading needed.
-compileOnly("dev.qheilmann:itemregistry:VERSION")
+    @Override
+    public void onEnable() {
+        registry.registerSource(ItemSource.VANILLA_SOURCE);
+        Bukkit.getPluginManager().callEvent(new ItemRegistryReadyEvent(registry));
+    }
+}
 ```
 
-**`paper-plugin.yml` dependency:**
+Consumer `paper-plugin.yml` in this pattern needs to declare `has-open-classloader: true` to allow providers to listen for the event:
 ```yaml
+has-open-classloader: true
+```
+
+Provider dependency and listener:
+```yaml
+# provider paper-plugin.yml — AFTER means consumer loads/enables after provider
 dependencies:
   server:
-    ItemRegistry:
+    YourConsumerPlugin:
       load: AFTER
       required: true
 ```
 
-Provider registration example:
-
 ```java
-@Override
-public void onEnable() {
-  if (!GlobalItemRegistry.isAvaible()) return; // ItemRegistry plugin not present
-  ItemRegistry global = GlobalItemRegistry.registry();
-
-    SimpleItemSource source = new SimpleItemSource(Key.key("myplugin", "source"));
-    source.register(Key.key("myplugin", "shared_item"), ItemStack.of(Material.EMERALD));
-    global.registerSource(source);
+@EventHandler
+public void onRegistryReady(ItemRegistryReadyEvent event) {
+    if (!TARGET_REGISTRY_KEY.equals(event.getRegistry().key())) return;
+    event.getRegistry().registerSource(mySource);
 }
 ```
 
-Consumer read example:
-
+Consumer fire the event when the registry is ready (for example in `onEnable()`):
 ```java
-@Override
-public void onEnable() {
-  if (!GlobalItemRegistry.isAvaible()) return;
-  ItemRegistry global = GlobalItemRegistry.registry();
-
-    ItemStack item = global.create(Key.key("myplugin", "shared_item"));
-}
+Bukkit.getPluginManager().callEvent(new ItemRegistryReadyEvent(registry));
 ```
 
-### Lifecycle and mutability notes (important)
+See examples (event-based implementation):
+- [examples/internal-extendable/consumer](examples/internal-extendable/consumer)
+- [examples/internal-extendable/provider](examples/internal-extendable/provider)
 
-1. There is no universal "all providers finished" moment by default.
-2. If your plugin must consume after specific providers, declare explicit dependencies on those providers and run after them.
-3. If your plugin is both provider and consumer, register first, then consume when your own plugin is ready.
-4. Registry content is mutable. If config references keys like `myplugin:item_a` and `thirdparty:item_b`, validate them at startup/reload and handle missing keys gracefully.
-5. For strict coordination, define your own plugin-level ready event/contract between known plugins.
+## Lifecycle Notes
 
-See [`examples/shared`](examples/shared) for a full provider + consumer pair.
-
----
-
-## Project layout
-
-### Core modules
-
-| Module                                       | Description                                         |
-| -------------------------------------------- | --------------------------------------------------- |
-| [`itemregistry`](itemregistry)               | API and core registry implementation                |
-| [`itemregistry-plugin`](itemregistry-plugin) | Standalone shared plugin owning one global registry |
-
-### Example modules
-
-#### Internal
-
-- [`examples/internal/api`](examples/internal/api): Internal-only example with fully private usage.
-
-#### Internal Extendable
-
-- [`examples/internal-extendable/consumer`](examples/internal-extendable/consumer): Consumer exposing its registry to known providers via event.
-- [`examples/internal-extendable/provider`](examples/internal-extendable/provider): Provider explicitly targeting the internal-extendable consumer.
-
-#### Shared
-
-- [`examples/shared/provider`](examples/shared/provider): Provider registering into the shared global registry.
-- [`examples/shared/consumer`](examples/shared/consumer): Consumer reading items from the shared global registry.
+- There is no automatic "all providers finished" phase.
+- If order matters, declare plugin dependencies explicitly.
+- Registry content is mutable during lifecycle and often depends on plugin enable/load order.
+- In shared mode, `GlobalItemRegistry.registry()` throws if the global registry is not ready yet. Check `GlobalItemRegistry.isAvaible()` first.
 
 ## License
 
