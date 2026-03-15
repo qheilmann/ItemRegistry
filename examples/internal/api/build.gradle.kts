@@ -10,7 +10,7 @@ repositories {
 }
 
 dependencies {
-    implementation(project(":itemregistry"))
+    implementation(projects.itemregistry)
     compileOnly(libs.paper.api)
     compileOnly(libs.jspecify)
 }
