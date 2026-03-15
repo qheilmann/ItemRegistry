@@ -11,6 +11,7 @@ dependencies {
     implementation(projects.itemregistry)
     compileOnly(libs.paper.api)
     compileOnly(libs.jspecify)
+    implementation(libs.commandapi.shade)
 }
 
 tasks {

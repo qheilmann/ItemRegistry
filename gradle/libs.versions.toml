@@ -1,5 +1,6 @@
 [versions]
 adventure = "4.26.1" # https://mvnrepository.com/artifact/net.kyori/adventure-api
+commandapi = "11.1.0" # https://central.sonatype.com/artifact/dev.jorel/commandapi-paper-shade
 dotenv = "4.0.0" # https://plugins.gradle.org/plugin/co.uzzu.dotenv.gradle
 jspecify = "1.0.0" # https://mvnrepository.com/artifact/org.jspecify/jspecify
 paper-api = "1.21.11-R0.1-SNAPSHOT" # https://repo.papermc.io/ui/packages?name=io.papermc.paper%3Apaper-api&type=packages
@@ -7,6 +8,7 @@ shadow = "9.3.2" # https://plugins.gradle.org/plugin/com.gradleup.shadow
 
 [libraries]
 adventure-api = { module = "net.kyori:adventure-api", version.ref = "adventure" }
+commandapi-shade = { module = "dev.jorel:commandapi-paper-shade", version.ref = "commandapi" }
 jspecify = { module = "org.jspecify:jspecify", version.ref = "jspecify" }
 paper-api = { module = "io.papermc.paper:paper-api", version.ref = "paper-api" }
 
