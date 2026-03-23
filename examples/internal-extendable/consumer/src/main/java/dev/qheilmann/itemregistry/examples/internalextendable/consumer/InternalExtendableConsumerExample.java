@@ -9,7 +9,7 @@ import org.jspecify.annotations.NullMarked;
 import dev.qheilmann.itemregistry.ItemRegistry;
 import dev.qheilmann.itemregistry.ItemSource;
 import dev.qheilmann.itemregistry.event.ItemRegistryReadyEvent;
-import dev.qheilmann.itemregistry.sources.SimpleItemSource;
+import dev.qheilmann.itemregistry.sources.PdcItemSource;
 import net.kyori.adventure.key.Key;
 
 // Demo goal: consumer plugin that owns a registry and exposes it to producers.
@@ -26,7 +26,7 @@ public final class InternalExtendableConsumerExample extends JavaPlugin {
         registry.registerSource(ItemSource.VANILLA_SOURCE);
 
         // Register local items owned by this consumer plugin.
-        SimpleItemSource localItems = new SimpleItemSource(Key.key(NAMESPACE, "local_source"));
+        PdcItemSource localItems = new PdcItemSource(Key.key(NAMESPACE, "local_source"));
         localItems.register(Key.key(NAMESPACE, "consumer_item"), ItemStack.of(Material.IRON_NUGGET));
         registry.registerSource(localItems);
 
@@ -42,5 +42,15 @@ public final class InternalExtendableConsumerExample extends JavaPlugin {
         getSLF4JLogger().info("InternalExtendable consumer example enabled.");
         getSLF4JLogger().info("Does 'consumer_example:consumer_item' resolve? {}", consumerItem != null);
         getSLF4JLogger().info("Does 'provider_example:shared_item' resolve? {}", providerItem != null);
+
+        if (consumerItem != null) {
+            Key resolvedConsumerKey = registry.resolveKey(consumerItem);
+            getSLF4JLogger().info("Reverse lookup for consumer item -> {}", resolvedConsumerKey);
+        }
+
+        if (providerItem != null) {
+            Key resolvedProviderKey = registry.resolveKey(providerItem);
+            getSLF4JLogger().info("Reverse lookup for provider item -> {}", resolvedProviderKey);
+        }
     }
 }

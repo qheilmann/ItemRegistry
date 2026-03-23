@@ -11,7 +11,7 @@ import org.jspecify.annotations.NullMarked;
 
 import dev.qheilmann.itemregistry.ItemRegistry;
 import dev.qheilmann.itemregistry.ItemSource;
-import dev.qheilmann.itemregistry.sources.SimpleItemSource;
+import dev.qheilmann.itemregistry.sources.PdcItemSource;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -34,8 +34,8 @@ public final class InternalOnlyExample extends JavaPlugin {
         registry.registerSource(ItemSource.VANILLA_SOURCE);
 
         // Create and register a custom source with demo items.
-        // Here we use SimpleItemSource for convenience, but plugins can implement their own ItemSource for more complex behavior.
-        SimpleItemSource custom = new SimpleItemSource(Key.key(NAMESPACE, "my_custom_source"));
+        // Here we use PdcItemSource for convenience, but StrictItemSource or a custom implementation could also be used.
+        PdcItemSource custom = new PdcItemSource(Key.key(NAMESPACE, "my_custom_source"));
         addCustomItems(custom);
         registry.registerSource(custom);
 
@@ -61,9 +61,9 @@ public final class InternalOnlyExample extends JavaPlugin {
     }
 
     /**
-     * Sets up custom items in the SimpleItemSource.
+    * Sets up custom items in the PdcItemSource.
      */
-    private void addCustomItems(SimpleItemSource source) {
+    private void addCustomItems(PdcItemSource source) {
         ItemStack wand = ItemStack.of(Material.STICK);
         wand.editMeta(meta -> {
             meta.displayName(Component.text("Magic Wand", NamedTextColor.LIGHT_PURPLE));

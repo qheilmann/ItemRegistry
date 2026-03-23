@@ -12,32 +12,35 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * Simple mutable in-memory {@link ItemSource}.
+ * Abstract base class for {@link ItemSource} implementations that manage templates.
  * <p>
- * This implementation provides a straightforward API for plugins that want to
- * register custom items without implementing their own ItemSource. Items are
- * stored as templates and cloned on each creation.
+ * Provides common functionality for template storage and registration management.
+ * Subclasses must implement {@link #createItem(Key)}, {@link #canResolve(Key)},
+ * and {@link #resolveKey(ItemStack)} to define resolution behavior.
+ * 
+ * @see StrictItemSource
+ * @see PdcItemSource
  */
 @NullMarked
-public class SimpleItemSource implements ItemSource {
+public abstract class AbstractItemSource implements ItemSource {
 
     /**
      * Map of keys to immutable templates.
      */
-    private final Map<Key, ItemStack> templates = new ConcurrentHashMap<>();
+    protected final Map<Key, ItemStack> templates = new ConcurrentHashMap<>();
 
     /**
      * The key representing this source, used for identification.
      */
-    private final Key sourceKey;
+    protected final Key sourceKey;
 
     /**
-     * Creates a new SimpleItemSource with the given source key.
+     * Creates a new AbstractItemSource with the given source key.
      *
      * @param sourceKey the key representing this source (e.g., "myplugin:myitemsource")
      */
-    public SimpleItemSource(Key sourceKey) {
-        this.sourceKey = sourceKey;
+    protected AbstractItemSource(Key sourceKey) {
+        this.sourceKey = Objects.requireNonNull(sourceKey, "sourceKey cannot be null");
     }
 
     /**
@@ -59,7 +62,7 @@ public class SimpleItemSource implements ItemSource {
         if (template.getType().isAir()) {
             throw new IllegalArgumentException("Item template cannot be null or air");
         }
-        
+
         // Clone the template for storage to prevent external mutation.
         ItemStack previous = templates.put(key, template.clone());
         return previous != null ? previous : null;
@@ -71,7 +74,8 @@ public class SimpleItemSource implements ItemSource {
      * @param key the key to unregister
      * @return the previous template for this key, or null if none existed
      */
-    public @Nullable ItemStack unregister(Key key) {
+    @Nullable
+    public ItemStack unregister(Key key) {
         ItemStack removed = templates.remove(key);
         return removed != null ? removed : null;
     }
@@ -100,27 +104,6 @@ public class SimpleItemSource implements ItemSource {
      */
     public int size() {
         return templates.size();
-    }
-
-    @Override
-    public @Nullable ItemStack createItem(Key key) {
-        ItemStack template = templates.get(key);
-        return template != null ? template.clone() : null;
-    }
-
-    @Override
-    public boolean canResolve(Key key) {
-        return templates.containsKey(key);
-    }
-
-    @Override
-    public @Nullable Key resolveKey(ItemStack itemStack) {
-        for (Map.Entry<Key, ItemStack> entry : templates.entrySet()) {
-            if (entry.getValue().isSimilar(itemStack)) {
-                return entry.getKey();
-            }
-        }
-        return null;
     }
 
     @Override

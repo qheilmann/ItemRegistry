@@ -18,7 +18,7 @@ Multiple registries can exist at the same time. A registry can be private to one
 ItemRegistry registry = ...;
 
 // Register your own simple item source.
-SimpleItemSource custom = new SimpleItemSource(Key.key("myplugin", "custom_source"));
+PdcItemSource custom = new PdcItemSource(Key.key("myplugin", "custom_source"));
 custom.register(Key.key("myplugin", "magic_wand"), ItemStack.of(Material.STICK));
 custom.register(Key.key("myplugin", "power_gem"), ItemStack.of(Material.AMETHYST_SHARD));
 registry.registerSource(custom);
@@ -29,6 +29,9 @@ registry.registerSource(new MySpecialSource());
 // Resolve.
 ItemStack wand = registry.create(Key.key("myplugin", "magic_wand"));
 boolean exists = registry.canResolve(Key.key("myplugin", "power_gem"));
+
+// Reverse lookup (item -> key).
+Key itemKey = registry.resolveKey(wand);
 ```
 
 ## Two Main Usage Patterns
@@ -75,7 +78,7 @@ public void onEnable() {
 
     ItemRegistry global = GlobalItemRegistry.registry();
     
-    SimpleItemSource source = new SimpleItemSource(Key.key("myplugin", "source"));
+    PdcItemSource source = new PdcItemSource(Key.key("myplugin", "source"));
     source.register(Key.key("myplugin", "shared_item"), ItemStack.of(Material.EMERALD));
     global.registerSource(source);
 }
@@ -94,6 +97,7 @@ public void onEnable() {
     ItemRegistry global = GlobalItemRegistry.registry();
     
     ItemStack item = global.create(Key.key("myplugin", "shared_item"));
+    Key resolved = global.resolveKey(item);
 }
 ```
 
@@ -226,6 +230,14 @@ See examples (event-based implementation):
 - If order matters, declare plugin dependencies explicitly.
 - Registry content is mutable during lifecycle and often depends on plugin enable/load order.
 - In shared mode, `GlobalItemRegistry.registry()` throws if the global registry is not ready yet. Check `GlobalItemRegistry.isAvaible()` first.
+
+## ItemSource Strategies
+
+**PdcItemSource (Recommended):** Stores item keys in ItemStack metadata (PDC). O(1) reverse lookup, survives item modifications (anvil renames, enchantment changes). Best for owned item creation.
+
+**StrictItemSource:** Compares items using `ItemStack#isSimilar`. Works with external items, but O(n) lookup and breaks on property changes. Use for external item identification.
+
+See [examples/shared/consumer](examples/shared/consumer) for both strategies in action.
 
 ## License
 

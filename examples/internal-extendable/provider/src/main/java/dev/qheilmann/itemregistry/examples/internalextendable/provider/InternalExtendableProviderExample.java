@@ -8,7 +8,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.jspecify.annotations.NullMarked;
 
 import dev.qheilmann.itemregistry.event.ItemRegistryReadyEvent;
-import dev.qheilmann.itemregistry.sources.SimpleItemSource;
+import dev.qheilmann.itemregistry.sources.PdcItemSource;
 import net.kyori.adventure.key.Key;
 
 // Demo goal: provider plugin that contributes items to consumer registries.
@@ -36,7 +36,7 @@ public final class InternalExtendableProviderExample extends JavaPlugin implemen
         }
 
         // Register this plugin's source into the consumer-owned registry.
-        SimpleItemSource source = new SimpleItemSource(Key.key(NAMESPACE, "provider_source"));
+        PdcItemSource source = new PdcItemSource(Key.key(NAMESPACE, "provider_source"));
         source.register(Key.key(NAMESPACE, "shared_item"), ItemStack.of(Material.GOLD_NUGGET));
         event.getRegistry().registerSource(source);
 

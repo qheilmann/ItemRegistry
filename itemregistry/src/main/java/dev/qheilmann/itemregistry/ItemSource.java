@@ -7,7 +7,8 @@ import org.bukkit.inventory.ItemStack;
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 
-import dev.qheilmann.itemregistry.sources.SimpleItemSource;
+import dev.qheilmann.itemregistry.sources.StrictItemSource;
+import dev.qheilmann.itemregistry.sources.PdcItemSource;
 import dev.qheilmann.itemregistry.sources.VanillaItemSource;
 
 import java.util.Set;
@@ -23,7 +24,8 @@ import java.util.Set;
  * Common implementations include:
  * <ul>
  * <li>{@link VanillaItemSource} - provides all vanilla Minecraft items</li>
- * <li>{@link SimpleItemSource} - a simple mutable source for custom items</li>
+ * <li>{@link PdcItemSource} - PDC-based resolution for persistent item tracking (recommended for mutable custom items, like anvil renaming, enchanting)</li>
+ * <li>{@link StrictItemSource} - strict similarity-based resolution (for cases where item should stay consistent and are immutable)</li>
  * </ul>
  * @see ItemRegistry
  */

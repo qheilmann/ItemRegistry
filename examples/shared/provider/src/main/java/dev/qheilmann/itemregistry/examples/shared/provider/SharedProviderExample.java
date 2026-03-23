@@ -2,7 +2,7 @@ package dev.qheilmann.itemregistry.examples.shared.provider;
 
 import dev.qheilmann.itemregistry.GlobalItemRegistry;
 import dev.qheilmann.itemregistry.ItemRegistry;
-import dev.qheilmann.itemregistry.sources.SimpleItemSource;
+import dev.qheilmann.itemregistry.sources.PdcItemSource;
 import net.kyori.adventure.key.Key;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
@@ -23,7 +23,7 @@ public final class SharedProviderExample extends JavaPlugin {
         }
         ItemRegistry globalRegistry = GlobalItemRegistry.registry();
 
-        SimpleItemSource source = new SimpleItemSource(Key.key(NAMESPACE, "shared_provider_source"));
+        PdcItemSource source = new PdcItemSource(Key.key(NAMESPACE, "shared_provider_source"));
         source.register(Key.key(NAMESPACE, "shared_item"), ItemStack.of(Material.EMERALD));
         globalRegistry.registerSource(source);
         getSLF4JLogger().info("Registered {} into shared registry {}.", source.key(), globalRegistry.key());
