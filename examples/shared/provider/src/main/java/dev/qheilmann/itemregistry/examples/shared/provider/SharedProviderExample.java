@@ -16,7 +16,7 @@ public final class SharedProviderExample extends JavaPlugin {
 
     @Override
     public void onEnable() {
-        if (!GlobalItemRegistry.isAvaible()) {
+        if (!GlobalItemRegistry.isAvailable()) {
             getSLF4JLogger().error("Global item registry is unavailable. Ensure the ItemRegistry plugin is enabled. Disabling plugin.");
             getServer().getPluginManager().disablePlugin(this);
             return;

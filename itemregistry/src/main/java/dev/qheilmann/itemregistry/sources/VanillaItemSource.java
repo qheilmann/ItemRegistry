@@ -1,6 +1,5 @@
 package dev.qheilmann.itemregistry.sources;
 
-import dev.qheilmann.itemregistry.ItemProvider;
 import dev.qheilmann.itemregistry.ItemRegistry;
 import dev.qheilmann.itemregistry.ItemSource;
 import net.kyori.adventure.key.Key;
@@ -38,6 +37,7 @@ import java.util.Set;
 @SuppressWarnings("java:S6548") // Singleton pattern is appropriate here
 public class VanillaItemSource implements ItemSource {
 
+    /** The key representing the vanilla item source. */
     public static final Key SOURCE_KEY = Key.key(ItemRegistry.NAMESPACE, "vanilla");
     
     /**
@@ -45,7 +45,7 @@ public class VanillaItemSource implements ItemSource {
      */
     private static final VanillaItemSource INSTANCE = new VanillaItemSource();
 
-    private final Map<Key, ItemProvider> keyProviders = new HashMap<>();
+    private final Map<Key, ItemStack> keyTemplates = new HashMap<>();
 
     /**
      * Private constructor to prevent external instantiation.
@@ -53,7 +53,7 @@ public class VanillaItemSource implements ItemSource {
      */
     private VanillaItemSource() {
         Registry.ITEM.forEach(type -> 
-            keyProviders.put(type.key(), type::createItemStack)
+            keyTemplates.put(type.key(), type.createItemStack())
         );
     }
     
@@ -67,17 +67,35 @@ public class VanillaItemSource implements ItemSource {
     }
 
     @Override
-    public @Nullable ItemProvider resolve(Key key) {
+    public @Nullable ItemStack createItem(Key key) {
         if (!Key.MINECRAFT_NAMESPACE.equals(key.namespace())) {
             return null;
         }
-        
-        return keyProviders.get(key);
+        ItemStack template = keyTemplates.get(key);
+        return template != null ? template.clone() : null;
+    }
+
+    @Override
+    public boolean canResolve(Key key) {
+        return Key.MINECRAFT_NAMESPACE.equals(key.namespace()) && keyTemplates.containsKey(key);
+    }
+
+    @Override
+    public @Nullable Key resolveKey(ItemStack itemStack) {
+        if (itemStack.getType().isAir()) {
+            return null;
+        }
+        return itemStack.getType().key();
+        // TODO Items with the same material but different components (e.g., custom item)
+        // need differentiation. Consider comparing components while excluding display name
+        // and other user-modifiable properties. Note: some components like potion effects
+        // may vary (e.g., glowstone potion) without changing the minecraft type, requiring
+        // custom item registry differentiation.
     }
 
     @Override
     public Set<Key> registeredKeys() {
-        return Set.copyOf(keyProviders.keySet());
+        return Set.copyOf(keyTemplates.keySet());
     }
 
 
@@ -87,7 +105,7 @@ public class VanillaItemSource implements ItemSource {
      * @return the count of available vanilla items
      */
     public int size() {
-        return keyProviders.size();
+        return keyTemplates.size();
     }
 
     @Override

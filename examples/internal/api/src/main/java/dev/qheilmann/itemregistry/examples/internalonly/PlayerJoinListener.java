@@ -9,7 +9,6 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.inventory.ItemStack;
 import org.jspecify.annotations.NullMarked;
 
-import dev.qheilmann.itemregistry.ItemProvider;
 import dev.qheilmann.itemregistry.ItemRegistry;
 import dev.qheilmann.itemregistry.ItemSource;
 import net.kyori.adventure.key.Key;
@@ -36,7 +35,7 @@ public final class PlayerJoinListener implements Listener {
         
         // First for demo purposes, we will give the "api_only_example:magic_wand" from our custom source from our item registry
         Key itemKey = Key.key("internal_only_example:magic_wand");
-        ItemStack magicWand = registry.create(itemKey);
+        ItemStack magicWand = registry.createItem(itemKey);
         if (magicWand != null) {
             player.give(magicWand);
         }
@@ -45,9 +44,8 @@ public final class PlayerJoinListener implements Listener {
         registry.getSources().stream()
             .filter(itemSource -> !ItemSource.VANILLA_SOURCE.key().equals(itemSource.key())) // Skip vanilla items to only give custom demo items
             .flatMap(source -> source.registeredKeys().stream()
-                .map(source::resolve) // Resolve each registered key to an ItemStack provider
+                .map(source::createItem) // Create each registered key into a fresh ItemStack
                 .filter(Objects::nonNull)
-                .map(ItemProvider::create) // Create an ItemStack from the provider
             )
             .forEach(player::give); // Give each item to the player
     }

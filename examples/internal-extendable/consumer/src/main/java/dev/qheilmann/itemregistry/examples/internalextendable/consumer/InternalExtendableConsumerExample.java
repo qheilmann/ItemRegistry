@@ -37,8 +37,8 @@ public final class InternalExtendableConsumerExample extends JavaPlugin {
         // These checks demonstrate expected behavior:
         // - consumer_item should always resolve
         // - provider_example:shared_item resolves only if provider plugin is installed
-        ItemStack consumerItem = registry.create(Key.key(NAMESPACE, "consumer_item"));
-        ItemStack providerItem = registry.create(Key.key("provider_example", "shared_item"));
+        ItemStack consumerItem = registry.createItem(Key.key(NAMESPACE, "consumer_item"));
+        ItemStack providerItem = registry.createItem(Key.key("provider_example", "shared_item"));
         getSLF4JLogger().info("InternalExtendable consumer example enabled.");
         getSLF4JLogger().info("Does 'consumer_example:consumer_item' resolve? {}", consumerItem != null);
         getSLF4JLogger().info("Does 'provider_example:shared_item' resolve? {}", providerItem != null);

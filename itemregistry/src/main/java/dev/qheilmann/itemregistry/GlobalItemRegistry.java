@@ -8,7 +8,9 @@ import java.util.concurrent.atomic.AtomicReference;
 /**
  * Global access point for the shared ItemRegistry runtime plugin.
  * <p>
- * Consumers should use {@link #registry()} and {@link #isAvaible()} only.
+ * Consumers should use {@link #registry()} and {@link #isAvailable()} only.
+ * This class is intended for use with the ItemRegistry runtime plugin,
+ * not the API-only artifact.
  * </p>
  */
 @NullMarked
@@ -46,7 +48,7 @@ public final class GlobalItemRegistry {
      *
      * @return true when the shared registry is available
      */
-    public static boolean isAvaible() {
+    public static boolean isAvailable() {
         return INSTANCE.get() != null;
     }
 

@@ -49,7 +49,7 @@ public class KeyItemArgument extends CustomArgument<ItemStack, NamespacedKey> {
     public KeyItemArgument(String nodeName, ItemRegistry itemRegistry) {
         super(new NamespacedKeyArgument(nodeName), input -> {
             NamespacedKey itemKey = input.currentInput();
-            ItemStack item = itemRegistry.create(itemKey);
+            ItemStack item = itemRegistry.createItem(itemKey);
             
             if (item == null) {
                 Component notFoundMessage = Component.translatable("argument.resource_or_id.no_such_element", // "Can't find element '%s' in registry '%s'"

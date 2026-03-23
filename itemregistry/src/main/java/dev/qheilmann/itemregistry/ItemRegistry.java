@@ -8,8 +8,8 @@ import org.jspecify.annotations.Nullable;
 
 import java.util.Collections;
 import java.util.LinkedHashMap;
-import java.util.Map;
 import java.util.Objects;
+import java.util.SequencedMap;
 import java.util.Set;
 
 /**
@@ -35,7 +35,7 @@ public class ItemRegistry implements Keyed {
      * Map of source keys to ItemSource instances.
      * LinkedHashMap preserves insertion order for predictable resolution.
      */
-    private final Map<Key, ItemSource> sources = new LinkedHashMap<>();
+    private final SequencedMap<Key, ItemSource> sources = new LinkedHashMap<>();
 
     /**
      * Creates a new, empty ItemRegistry with no sources.
@@ -125,19 +125,39 @@ public class ItemRegistry implements Keyed {
     /**
      * Creates an {@link ItemStack} for the given item key by querying registered sources.
      * <p>
-     * Sources are queried in registration order. The first source that returns
-     * a non-null {@link ItemProvider} for this key will be used to create the item.
+     * Sources are queried in registration order. The first source that can create
+     * an item for this key will be used. Returns null if no registered source can
+     * resolve the key.
      * <p>
-     * Returns null if no registered source can resolve the key.
+     * You can safely modify the returned ItemStack.
      *
      * @param itemKey the key of the item to create (e.g., "minecraft:diamond")
-     * @return a ItemStack.of instance, or null if the key cannot be resolved
+     * @return a fresh ItemStack instance, or null if the key cannot be resolved
      */
-    public synchronized @Nullable ItemStack create(Key itemKey) {
+    public synchronized @Nullable ItemStack createItem(Key itemKey) {
         for (ItemSource source : sources.values()) {
-            ItemProvider provider = source.resolve(itemKey);
-            if (provider != null) {
-                return provider.create();
+            ItemStack item = source.createItem(itemKey);
+            if (item != null) {
+                return item;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Resolves the given item stack to its key by querying registered sources.
+     * <p>
+     * Sources are queried in registration order. The first source that recognizes
+     * this item stack determines the result.
+     *
+     * @param itemStack the item stack to resolve
+     * @return the resolved key, or null if no source can map the item stack
+     */
+    public synchronized @Nullable Key resolveKey(ItemStack itemStack) {
+        for (ItemSource source : sources.values()) {
+            Key resolved = source.resolveKey(itemStack);
+            if (resolved != null) {
+                return resolved;
             }
         }
         return null;
@@ -146,15 +166,15 @@ public class ItemRegistry implements Keyed {
     /**
      * Checks if any registered source can resolve the given item key.
      * <p>
-     * This is equivalent to {@code create(itemKey) != null} but may be
-     * more efficient if you only need to check existence.
+     * Sources are queried in registration order. 
+     * Returns true if at least one source can resolve the key, false otherwise.     *
      *
      * @param itemKey the item key to check
      * @return true if at least one source can resolve this key
      */
     public synchronized boolean canResolve(Key itemKey) {
         for (ItemSource source : sources.values()) {
-            if (source.resolve(itemKey) != null) {
+            if (source.canResolve(itemKey)) {
                 return true;
             }
         }

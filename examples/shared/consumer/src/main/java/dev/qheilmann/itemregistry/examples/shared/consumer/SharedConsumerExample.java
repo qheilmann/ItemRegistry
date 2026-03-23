@@ -12,7 +12,7 @@ public final class SharedConsumerExample extends JavaPlugin {
 
     @Override
     public void onEnable() {
-        if (!GlobalItemRegistry.isAvaible()) {
+        if (!GlobalItemRegistry.isAvailable()) {
             getSLF4JLogger().error("Global item registry is unavailable. Ensure the ItemRegistry plugin is enabled. Disabling plugin.");
             getServer().getPluginManager().disablePlugin(this);
             return;
@@ -23,8 +23,8 @@ public final class SharedConsumerExample extends JavaPlugin {
 
         // Wait to ensure all providers have registered before testing item resolution
         getServer().getScheduler().runTask(this, () -> {
-            ItemStack vanillaItem = globalRegistry.create(Key.key("minecraft", "diamond"));
-            ItemStack providerItem = globalRegistry.create(Key.key("shared_provider_example", "shared_item"));
+            ItemStack vanillaItem = globalRegistry.createItem(Key.key("minecraft", "diamond"));
+            ItemStack providerItem = globalRegistry.createItem(Key.key("shared_provider_example", "shared_item"));
             getSLF4JLogger().info("Does 'minecraft:diamond' resolve? {}", vanillaItem != null);
             getSLF4JLogger().info("Does 'shared_provider_example:shared_item' resolve? {}", providerItem != null);
         });

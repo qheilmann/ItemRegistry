@@ -38,7 +38,7 @@ public class GreadyItemArgument extends CustomArgument<ItemAndCountResult, Strin
                 throw new UnsupportedOperationException("This argument is not fully implemented yet. Please use " + KeyItemArgument.class.getSimpleName() + " instead.");
             }
 
-            // TODO implement count parsing
+            // TODO(feature) implement count parsing
             // simple way: just split by space and take last part and parse it as int
             // complex: add extra param support and check for be avare of is extra apram contains space (like minecraft:dirt[custom_name:"hello world"])
             // finaly we can also impl a custom parser with lot of suggestions and error handling like minecraft does for give command
@@ -51,7 +51,7 @@ public class GreadyItemArgument extends CustomArgument<ItemAndCountResult, Strin
             }
             Key itemKey = Key.key(itemStr);
             
-            ItemStack item = itemRegistry.create(itemKey);
+            ItemStack item = itemRegistry.createItem(itemKey);
             if (item == null) {
                 Component notFoundMessage = Component.translatable("argument.resource_or_id.no_such_element", // "Can't find element '%s' in registry '%s'"
                     Component.text(itemKey.asString()),
