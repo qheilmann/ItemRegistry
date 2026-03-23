@@ -22,6 +22,7 @@ import org.jspecify.annotations.Nullable;
 @NullMarked
 public class PdcItemSource extends AbstractItemSource {
 
+    /** The NamespacedKey used to store item keys in the PersistentDataContainer. */
     public static final NamespacedKey ITEM_KEY_PDC = new NamespacedKey(ItemRegistry.NAMESPACE, "item_key");
 
     /**
