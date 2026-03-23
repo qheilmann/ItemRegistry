@@ -3,6 +3,9 @@ adventure = "4.26.1" # https://mvnrepository.com/artifact/net.kyori/adventure-ap
 commandapi = "11.1.0" # https://central.sonatype.com/artifact/dev.jorel/commandapi-paper-shade
 dotenv = "4.0.0" # https://plugins.gradle.org/plugin/co.uzzu.dotenv.gradle
 jspecify = "1.0.0" # https://mvnrepository.com/artifact/org.jspecify/jspecify
+junit = "6.0.3" # https://mvnrepository.com/artifact/org.junit/junit-bom
+mockito = "5.23.0" # https://mvnrepository.com/artifact/org.mockito/mockito-bom
+mockbukkit = "4.108.0" # https://central.sonatype.com/artifact/org.mockbukkit.mockbukkit/mockbukkit-v1.21
 paper-api = "1.21.11-R0.1-SNAPSHOT" # https://repo.papermc.io/ui/packages?name=io.papermc.paper%3Apaper-api&type=packages
 shadow = "9.3.2" # https://plugins.gradle.org/plugin/com.gradleup.shadow
 
@@ -10,6 +13,14 @@ shadow = "9.3.2" # https://plugins.gradle.org/plugin/com.gradleup.shadow
 adventure-api = { module = "net.kyori:adventure-api", version.ref = "adventure" }
 commandapi-shade = { module = "dev.jorel:commandapi-paper-shade", version.ref = "commandapi" }
 jspecify = { module = "org.jspecify:jspecify", version.ref = "jspecify" }
+junit-bom = { module = "org.junit:junit-bom", version.ref = "junit" }
+junit-api = { module = "org.junit.jupiter:junit-jupiter-api" }
+junit-engine = { module = "org.junit.jupiter:junit-jupiter-engine" }
+junit-launcher = { module = "org.junit.platform:junit-platform-launcher" }
+mockito-bom = { module = "org.mockito:mockito-bom", version.ref = "mockito" }
+mockito = { module = "org.mockito:mockito-core" }
+mockito-junit = { module = "org.mockito:mockito-junit-jupiter" }
+mockbukkit = { module = "org.mockbukkit.mockbukkit:mockbukkit-v1.21", version.ref = "mockbukkit" }
 paper-api = { module = "io.papermc.paper:paper-api", version.ref = "paper-api" }
 
 [plugins]

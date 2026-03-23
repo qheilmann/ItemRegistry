@@ -11,6 +11,17 @@ dependencies {
     compileOnly(libs.adventure.api)
     compileOnly(libs.paper.api)
     compileOnly(libs.jspecify)
+
+    testImplementation(libs.adventure.api)
+    testImplementation(libs.paper.api)
+    testImplementation(platform(libs.junit.bom))
+    testImplementation(platform(libs.mockito.bom))
+    testImplementation(libs.junit.api)
+    testRuntimeOnly(libs.junit.engine)
+    testRuntimeOnly(libs.junit.launcher)
+    testImplementation(libs.mockito)
+    testImplementation(libs.mockito.junit)
+    testImplementation(libs.mockbukkit)
 }
 
 java {
