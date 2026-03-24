@@ -2,6 +2,8 @@ plugins {
     `maven-publish`
 }
 
+version = (findProperty("apiVersion") as String)
+
 repositories {
     mavenCentral()
     maven("https://repo.papermc.io/repository/maven-public/")

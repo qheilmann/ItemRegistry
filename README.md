@@ -1,5 +1,7 @@
 # ItemRegistry
 
+![JitPack](https://jitpack.io/v/qheilmann/ItemRegistry.svg)
+
 ItemRegistry is a small Paper API that resolves Adventure [Key](https://jd.advntr.dev/key/latest/net/kyori/adventure/key/Key.html) values to Bukkit [ItemStack](https://hub.spigotmc.org/javadocs/spigot/org/bukkit/inventory/ItemStack.html) using pluggable item sources.
 
 ## Goal
@@ -11,7 +13,7 @@ Make item lookup easier and easy to share across plugins, without hard dependenc
 
 Multiple registries can exist at the same time. A registry can be private to one plugin or shared across plugins.
 
-## Core API (same in all modes)
+## Basic Usage
 
 ```java
 // Suppose you already have a registry instance.
@@ -27,12 +29,47 @@ registry.registerSource(custom);
 registry.registerSource(new MySpecialSource());
 
 // Resolve.
-ItemStack wand = registry.create(Key.key("myplugin", "magic_wand"));
+ItemStack wand = registry.createItem(Key.key("myplugin", "magic_wand"));
 boolean exists = registry.canResolve(Key.key("myplugin", "power_gem"));
 
 // Reverse lookup (item -> key).
 Key itemKey = registry.resolveKey(wand);
 ```
+
+## Dependency Setup
+
+### Gradle (Kotlin DSL)
+
+```kotlin
+repositories {
+    maven("https://jitpack.io")
+}
+
+dependencies {
+    compileOnly("com.github.qheilmann.ItemRegistry:itemregistry:VERSION")
+}
+```
+
+### Maven
+
+```xml
+<repositories>
+    <repository>
+        <id>jitpack.io</id>
+        <url>https://jitpack.io</url>
+    </repository>
+</repositories>
+
+<dependency>
+    <groupId>com.github.qheilmann.ItemRegistry</groupId>
+    <artifactId>itemregistry</artifactId>
+    <version>VERSION</version>
+    <scope>provided</scope>
+</dependency>
+```
+
+> Replace `VERSION` with a release tag. Available versions are listed on [JitPack](https://jitpack.io/#qheilmann/ItemRegistry).
+
 
 ## Two Main Usage Patterns
 
@@ -54,7 +91,7 @@ Tradeoff:
 
 Gradle dependency for providers/consumers:
 ```kotlin
-compileOnly("dev.qheilmann:itemregistry:VERSION")
+compileOnly("com.github.qheilmann.ItemRegistry:itemregistry:VERSION")
 ```
 
 `paper-plugin.yml` dependency (matches examples):
@@ -96,7 +133,7 @@ public void onEnable() {
 
     ItemRegistry global = GlobalItemRegistry.registry();
     
-    ItemStack item = global.create(Key.key("myplugin", "shared_item"));
+    ItemStack item = global.createItem(Key.key("myplugin", "shared_item"));
     Key resolved = global.resolveKey(item);
 }
 ```
@@ -120,7 +157,7 @@ Tradeoff:
 
 Gradle dependency:
 ```kotlin
-implementation("dev.qheilmann:itemregistry:VERSION")
+implementation("com.github.qheilmann.ItemRegistry:itemregistry:VERSION")
 ```
 
 See example: [examples/internal/api](examples/internal/api)

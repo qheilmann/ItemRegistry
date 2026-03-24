@@ -2,6 +2,8 @@ plugins {
     alias(libs.plugins.shadow)
 }
 
+version = (findProperty("pluginVersion") as String)
+
 repositories {
     mavenCentral()
     maven("https://repo.papermc.io/repository/maven-public/")
