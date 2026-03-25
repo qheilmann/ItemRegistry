@@ -11,14 +11,13 @@ import dev.jorel.commandapi.CommandPermission;
 import dev.jorel.commandapi.arguments.EntitySelectorArgument;
 import dev.jorel.commandapi.arguments.IntegerArgument;
 import dev.qheilmann.itemregistry.ItemRegistry;
-import dev.qheilmann.itemregistry.plugin.ItemRegistryPlugin;
 import dev.qheilmann.itemregistry.plugin.command.argument.KeyItemArgument;
 
 @SuppressWarnings("java:S1192") // Allow string literals
 @NullMarked
 public class GiveCommand {
     public static final String NAME = "give";
-    public static final String[] ALIASES = {};
+    protected static final String[] ALIASES = {};
     public static final CommandPermission PERMISSION = CommandPermission.OP;
     public static final String SHORT_HELP = "Give items to players";
     public static final String LONG_HELP = "This command is used for giving regsitered items to players";
