@@ -46,7 +46,10 @@ repositories {
 }
 
 dependencies {
+    // Shared mode (standalone ItemRegistry plugin at runtime):
     compileOnly("com.github.qheilmann.ItemRegistry:itemregistry:VERSION")
+    // Internal mode (embedded / shaded runtime):
+    implementation("com.github.qheilmann.ItemRegistry:itemregistry:VERSION")
 }
 ```
 
@@ -64,11 +67,14 @@ dependencies {
     <groupId>com.github.qheilmann.ItemRegistry</groupId>
     <artifactId>itemregistry</artifactId>
     <version>VERSION</version>
+    <!-- Shared mode (standalone plugin at runtime) -->
     <scope>provided</scope>
+    <!-- Internal mode (embedded / shaded runtime) -->
+    <scope>compile</scope>
 </dependency>
 ```
 
-> Replace `VERSION` with a release tag. Available versions are listed on [JitPack](https://jitpack.io/#qheilmann/ItemRegistry).
+> Replace `VERSION` with a release tag. Choose `compileOnly`/`provided` for Shared mode, and `implementation`/`compile` for Internal mode. Available versions are listed on [JitPack](https://jitpack.io/#qheilmann/ItemRegistry).
 
 
 ## Two Main Usage Patterns
@@ -107,7 +113,7 @@ Provider example:
 ```java
 @Override
 public void onEnable() {
-    if (!GlobalItemRegistry.isAvaible()) {
+    if (!GlobalItemRegistry.isAvailable()) {
         getSLF4JLogger().error("Global item registry is unavailable. Ensure the ItemRegistry plugin is enabled. Disabling plugin.");
         getServer().getPluginManager().disablePlugin(this);
         return;
@@ -125,7 +131,7 @@ Consumer example:
 ```java
 @Override
 public void onEnable() {
-    if (!GlobalItemRegistry.isAvaible()) {
+    if (!GlobalItemRegistry.isAvailable()) {
         getSLF4JLogger().error("Global item registry is unavailable. Ensure the ItemRegistry plugin is enabled. Disabling plugin.");
         getServer().getPluginManager().disablePlugin(this);
         return;
@@ -266,7 +272,7 @@ See examples (event-based implementation):
 - There is no automatic "all providers finished" phase.
 - If order matters, declare plugin dependencies explicitly.
 - Registry content is mutable during lifecycle and often depends on plugin enable/load order.
-- In shared mode, `GlobalItemRegistry.registry()` throws if the global registry is not ready yet. Check `GlobalItemRegistry.isAvaible()` first.
+- In shared mode, `GlobalItemRegistry.registry()` throws if the global registry is not ready yet. Check `GlobalItemRegistry.isAvailable()` first.
 
 ## ItemSource Strategies
 
