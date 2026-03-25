@@ -11,6 +11,7 @@ import dev.qheilmann.itemregistry.ItemRegistry;
 import dev.qheilmann.itemregistry.ItemSource;
 import dev.qheilmann.itemregistry.event.ItemRegistryReadyEvent;
 import dev.qheilmann.itemregistry.plugin.command.GiveCommand;
+import dev.qheilmann.itemregistry.plugin.command.WhatAmIHoldingCommand;
 import net.kyori.adventure.text.logger.slf4j.ComponentLogger;
 
 /**
@@ -52,6 +53,7 @@ public final class ItemRegistryPlugin extends JavaPlugin {
 
         // Commands
         GiveCommand.register(globalRegistry);
+        WhatAmIHoldingCommand.register(globalRegistry);
     }
 
     @Override
