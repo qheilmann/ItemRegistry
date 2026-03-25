@@ -2,6 +2,8 @@ package dev.qheilmann.itemregistry.sources;
 
 import dev.qheilmann.itemregistry.ItemRegistry;
 import dev.qheilmann.itemregistry.ItemSource;
+import io.papermc.paper.datacomponent.DataComponentType;
+import io.papermc.paper.datacomponent.DataComponentTypes;
 import net.kyori.adventure.key.Key;
 import org.bukkit.Registry;
 import org.bukkit.inventory.ItemStack;
@@ -10,8 +12,11 @@ import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
+import java.util.function.Predicate;
 
 /**
  * ItemSource implementation that provides vanilla Minecraft items.
@@ -44,6 +49,13 @@ public class VanillaItemSource implements ItemSource {
      * The singleton instance of VanillaItemSource.
      */
     private static final VanillaItemSource INSTANCE = new VanillaItemSource();
+
+    private static final Set<DataComponentType> IGNORED_PLAYER_MODIFIABLE_COMPONENTS = Set.of(
+        DataComponentTypes.CUSTOM_NAME,
+        DataComponentTypes.REPAIR_COST,
+        DataComponentTypes.ENCHANTMENTS,
+        DataComponentTypes.POTION_CONTENTS
+    );
 
     private final Map<Key, ItemStack> keyTemplates = new HashMap<>();
 
@@ -85,12 +97,53 @@ public class VanillaItemSource implements ItemSource {
         if (itemStack.getType().isAir()) {
             return null;
         }
-        return itemStack.getType().key();
-        // TODO Items with the same material but different components (e.g., custom item)
-        // need differentiation. Consider comparing components while excluding display name
-        // and other user-modifiable properties. Note: some components like potion effects
-        // may vary (e.g., glowstone potion) without changing the minecraft type, requiring
-        // custom item registry differentiation.
+        Key key = itemStack.getType().key();
+        ItemStack vanillaTemplate = keyTemplates.get(key);
+        if (vanillaTemplate == null) {
+            return null;
+        }
+        
+        if (!isVanillaEquivalent(itemStack, vanillaTemplate)) {
+            return null;
+        }
+
+        return key;
+    }
+
+    private boolean isVanillaEquivalent(ItemStack candidate, ItemStack vanillaTemplate) {
+        // Ignore player-modifiable data components
+        Set<DataComponentType> candidateTypes = filteredDataTypes(candidate, IGNORED_PLAYER_MODIFIABLE_COMPONENTS::contains);
+        Set<DataComponentType> vanillaTypes = filteredDataTypes(vanillaTemplate, IGNORED_PLAYER_MODIFIABLE_COMPONENTS::contains);
+
+        // Same set of data component
+        if (!candidateTypes.equals(vanillaTypes)) {
+            return false;
+        }
+
+        // Same value for each data component
+        for (DataComponentType type : candidateTypes) {
+            if (!(type instanceof DataComponentType.Valued<?> valuedType)) {
+                continue; // Skip non-valued components
+            }
+
+            if (!hasSameData(candidate, vanillaTemplate, valuedType)) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    private <T> boolean hasSameData(ItemStack candidate, ItemStack vanillaTemplate, DataComponentType.Valued<T> valuedType) {
+        T candidateData = candidate.getData(valuedType);
+        T vanillaData = vanillaTemplate.getData(valuedType);
+        return Objects.equals(candidateData, vanillaData);
+    }
+
+    private Set<DataComponentType> filteredDataTypes(ItemStack itemStack, Predicate<DataComponentType> filter) {
+        Set<DataComponentType> filtered = new HashSet<>(itemStack.getDataTypes());
+        filtered.removeIf(filter);
+        return filtered;
     }
 
     @Override
