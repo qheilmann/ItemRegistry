@@ -27,7 +27,7 @@ tasks {
     processResources {
         val props = mapOf(
             "version" to project.version,
-            "apiVersion" to libs.versions.paper.api.get().substringBefore("-R"),
+            "apiVersion" to providers.gradleProperty("paperApiVersion").get()
         )
         inputs.properties(props)
         filesMatching("paper-plugin.yml") {
@@ -39,8 +39,10 @@ tasks {
         group = "deployment"
         description = "Deploy the current built jar to the development server"
 
+        val envFetch: (String) -> String by rootProject.extra
+
         from(shadowJar.flatMap { it.archiveFile })
-        into("${env.fetch("SERVER_PATH")}/plugins")
+        into("${envFetch("SERVER_PATH")}/plugins")
 
         val baseNameProvider = shadowJar.flatMap { it.archiveBaseName }
 
