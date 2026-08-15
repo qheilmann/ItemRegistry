@@ -26,7 +26,7 @@ tasks {
     processResources {
         val props = mapOf(
             "version" to pluginVersion,
-            "apiVersion" to libs.versions.paper.api.get().substringBefore("-R"),
+            "apiVersion" to providers.gradleProperty("paperApiVersion").get(),
         )
         inputs.properties(props)
         filesMatching("paper-plugin.yml") {
@@ -39,7 +39,7 @@ tasks {
         description = "Deploy the current built jar to the development server"
 
         from(shadowJar.flatMap { it.archiveFile })
-        into("${env.fetch("SERVER_PATH")}/plugins") // This uses environment variable from .env file via dotenv plugin applied to root project
+        into("${project.envFetch("SERVER_PATH")}/plugins") // This uses environment variable from environment or .env file
 
         val baseNameProvider = shadowJar.flatMap { it.archiveBaseName } // Required to access archiveBaseName in doFirst
 
