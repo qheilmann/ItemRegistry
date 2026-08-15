@@ -1,27 +1,3 @@
-// Minimal ".env" reader for deployment tasks
-// Values from the environment take precedence over the ".env" file.
-// Exposed to subprojects via rootProject.extra
-val dotEnv: Map<String, String> = rootProject.file(".env").let { file ->
-    if (!file.exists()) {
-        emptyMap()
-    } else {
-        file.readLines()
-            .map { it.trim() }
-            .filter { it.isNotEmpty() && !it.startsWith("#") && it.contains("=") }
-            .associate { line ->
-                val (key, value) = line.split("=", limit = 2)
-                key.trim() to value.trim().trim('"', '\'')
-            }
-    }
-}
-
-fun envFetchOrNull(key: String): String? = System.getenv(key) ?: dotEnv[key]
-
-fun envFetch(key: String): String = envFetchOrNull(key)
-    ?: throw GradleException("Missing required environment variable \"$key\" (set it in the environment or in .env)")
-
-extra["envFetch"] = ::envFetch
-extra["envFetchOrNull"] = ::envFetchOrNull
 
 tasks {
     register("shadowJarAndDeployExampleInternalOnly") {

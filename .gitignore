@@ -34,6 +34,7 @@ replay_pid*
 # https://github.com/github/gitignore/blob/main/Gradle.gitignore #
 ##################################################################
 .gradle
+.kotlin
 **/build/
 !**/src/**/build/
 

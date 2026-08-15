@@ -39,10 +39,8 @@ tasks {
         group = "deployment"
         description = "Deploy the current built jar to the development server"
 
-        val envFetch: (String) -> String by rootProject.extra
-
         from(shadowJar.flatMap { it.archiveFile })
-        into("${envFetch("SERVER_PATH")}/plugins")
+        into("${project.envFetch("SERVER_PATH")}/plugins") // This uses environment variable from environment or .env file
 
         val baseNameProvider = shadowJar.flatMap { it.archiveBaseName }
 
